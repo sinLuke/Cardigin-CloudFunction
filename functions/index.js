@@ -13,6 +13,12 @@ var db = admin.firestore();
 // });
 
 exports.setAFollowB = functions.https.onCall((data, context) => {
+	/*
+	Data = {
+		a:String (this user's uid)
+		b:String (this user's uid)
+	}
+	*/
 	const userAUID = data.a
 	const userBUID = data.b
 	if(userAUID === userBUID){
@@ -22,6 +28,12 @@ exports.setAFollowB = functions.https.onCall((data, context) => {
 });
 
 exports.setAUnfollowB = functions.https.onCall((data, context) => {
+	/*
+	Data = {
+		a:String (this user's uid)
+		b:String (this user's uid)
+	}
+	*/
 	const userAUID = data.a
 	const userBUID = data.b
 	if(userAUID === userBUID){
@@ -31,6 +43,15 @@ exports.setAUnfollowB = functions.https.onCall((data, context) => {
 });
 
 exports.ifAFollowedB = functions.https.onCall((data, context) => {
+	/*
+	Data = {
+		a:String (this user's uid)
+		b:String (this user's uid)
+	}
+	return = {
+		value:Bool (if a followed b or not)
+	}
+	*/
 	const userAUID = data.a
 	const userBUID = data.b
 	return db.collection('users').doc(userAUID).collection('following').get().then(snap => {
@@ -47,6 +68,15 @@ exports.ifAFollowedB = functions.https.onCall((data, context) => {
 });
 
 exports.getPostFeedREFsForUser = functions.https.onCall((data, context) => {
+	/*
+		Data = {
+			UID:String (this user's uid)
+		}
+
+		return = {
+			value:String (document id for posts in posts collection)
+		}
+	*/
 	return getFollowingUserUIDsForUser(data.UID).then(followingUserUIDList => {
 		console.log("followingUserUIDList", followingUserUIDList)
 		var returnValue = []
@@ -60,26 +90,23 @@ exports.getPostFeedREFsForUser = functions.https.onCall((data, context) => {
 		}))
 
 		followingUserUIDList.forEach(followingUID => {
-			console.log("followingUID", followingUID)
 			returnPromise.push(db.collection('users').doc(followingUID).collection('posts').get().then(snap => {
 				snap.forEach(doc => {
 					returnValue.push(doc.data().ref.id)
 				})
 				return null
 			}))
-			
 		})
-		console.log("returnValue", returnValue)
 
 		return Promise.all(returnPromise).then(_ => {
-			console.log("returnValue", returnValue)
 			return {
-				a: 'a',
 				value: returnValue
 			}
 		})
 	})
 });
+
+//helper functions
 
 function getFollowingUserUIDsForUser(uid){
 	return db.collection('users').doc(uid).collection('following').get().then(snap => {

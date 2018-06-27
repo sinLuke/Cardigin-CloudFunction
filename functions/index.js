@@ -15,8 +15,8 @@ var db = admin.firestore();
 exports.setAFollowB = functions.https.onCall((data, context) => {
 	/*
 	Data = {
-		a:String (this user's uid)
-		b:String (this user's uid)
+		a:String (user a's uid)
+		b:String (user b's uid)
 	}
 	*/
 	const userAUID = data.a
@@ -30,8 +30,8 @@ exports.setAFollowB = functions.https.onCall((data, context) => {
 exports.setAUnfollowB = functions.https.onCall((data, context) => {
 	/*
 	Data = {
-		a:String (this user's uid)
-		b:String (this user's uid)
+		a:String (user a's uid)
+		b:String (user b's uid)
 	}
 	*/
 	const userAUID = data.a
@@ -45,8 +45,8 @@ exports.setAUnfollowB = functions.https.onCall((data, context) => {
 exports.ifAFollowedB = functions.https.onCall((data, context) => {
 	/*
 	Data = {
-		a:String (this user's uid)
-		b:String (this user's uid)
+		a:String (user a's uid)
+		b:String (user b's uid)
 	}
 	return = {
 		value:Bool (if a followed b or not)

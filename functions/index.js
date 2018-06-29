@@ -12,6 +12,78 @@ var db = admin.firestore();
 //  response.send("Hello from Firebase!");
 // });
 
+exports.setAHostB = functions.https.onCall((data, context) => {
+	/*
+	Data = {
+		a:String (club a's id)
+		b:String (event b's id)
+	}
+	*/
+	const clubAID = data.a
+	const eventBID = data.b
+	return Promise.all([writeAHostEventB(clubAID, eventBID, 'host')])
+});
+
+exports.setAJoinClubB = functions.https.onCall((data, context) => {
+	/*
+	Data = {
+		a:String (user a's uid)
+		b:String (club b's id)
+	}
+	*/
+	const userAUID = data.a
+	const clubBID = data.b
+	return Promise.all([writeAJoinClubB(userAUID, clubBID, 'member')])
+});
+
+exports.setAJoinEventB = functions.https.onCall((data, context) => {
+	/*
+	Data = {
+		a:String (user a's uid)
+		b:String (event b's id)
+	}
+	*/
+	const userAUID = data.a
+	const eventBID = data.b
+	return Promise.all([writeAJoinEventB(userAUID, eventBID, 'joiner')])
+});
+
+exports.setAUnhostB = functions.https.onCall((data, context) => {
+	/*
+	Data = {
+		a:String (club a's id)
+		b:String (event b's id)
+	}
+	*/
+	const clubAID = data.a
+	const eventBID = data.b
+	return Promise.all([writeAUnhostEventB(clubAID, eventBID, 'host')])
+});
+
+exports.setADisjoinClubB = functions.https.onCall((data, context) => {
+	/*
+	Data = {
+		a:String (user a's uid)
+		b:String (club b's id)
+	}
+	*/
+	const userAUID = data.a
+	const clubBID = data.b
+	return Promise.all([writeADisjoinClubB(userAUID, clubBID, 'member')])
+});
+
+exports.setADisjoinEventB = functions.https.onCall((data, context) => {
+	/*
+	Data = {
+		a:String (user a's uid)
+		b:String (event b's id)
+	}
+	*/
+	const userAUID = data.a
+	const eventBID = data.b
+	return Promise.all([writeADisjoinEventB(userAUID, eventBID, 'joiner')])
+});
+
 exports.setAFollowB = functions.https.onCall((data, context) => {
 	/*
 	Data = {
@@ -107,6 +179,50 @@ exports.getPostFeedREFsForUser = functions.https.onCall((data, context) => {
 });
 
 //helper functions
+
+function writeAHostEventB(clubAID, eventBID, position){
+	return db.collection('club_event').doc(clubAID+eventBID).set({
+		club: clubAID,
+		event: eventBID,
+		avaliable: true
+	})
+}
+
+function writeAJoinEventB(userAUID, eventBID, position){
+	return db.collection('user_event').doc(userAUID+eventBID).set({
+		user: userAUID,
+		event: eventBID,
+		avaliable: true,
+		position: 'joiner'
+	})
+}
+
+function writeAJoinClubB(userAUID, clubBID, position){
+	return db.collection('user_club').doc(userAUID+clubBID).set({
+		user: userAUID,
+		club: clubBID,
+		avaliable: true,
+		position: 'member'
+	})
+}
+
+function writeAUnhostEventB(clubAID, eventBID){
+	return db.collection('club_event').doc(clubAID+eventBID).update({
+		avaliable: false
+	})
+}
+
+function writeADisjoinEventB(userAUID, eventBID){
+	return db.collection('user_event').doc(userAUID+eventBID).update({
+		avaliable: false
+	})
+}
+
+function writeADisjoinClubB(userAUID, clubBID){
+	return db.collection('user_club').doc(userAUID+clubBID).update({
+		avaliable: false
+	})
+}
 
 function getFollowingUserUIDsForUser(uid){
 	return db.collection('users').doc(uid).collection('following').get().then(snap => {
